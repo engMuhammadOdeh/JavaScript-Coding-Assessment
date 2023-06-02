@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quote Search Filter</title>
+  </head>
+  <body>
+    <h1>Quote Search Filter</h1>
+
+    <input type="text" id="searchInput" placeholder="Enter search keyword" />
+    <button id="searchButton">Search</button>
+    <ul id="quoteList"></ul>
+
+    <script>
+      const quoteList = document.getElementById("quoteList");
+      const searchInput = document.getElementById("searchInput");
+      const searchButton = document.getElementById("searchButton");
+      let quotesData = [];
+
+      // Fetch quote data from the API
+      fetch("https://dummyjson.com/quotes")
+        .then((response) => response.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            // Extract quotes from the response
+            quotesData = data.map((item) => ({ text: item.text }));
+          } else {
+            throw new Error("Invalid API response");
+          }
+          displayQuotes(quotesData);
+
+          // Attach event listeners
+          searchButton.addEventListener("click", handleSearch); // corrected line
+          searchInput.addEventListener("keyup", function (event) {
+            if (event.key === "Enter") {
+              handleSearch();
+            }
+          });
+        })
+        .catch((error) => {
+          quoteList.innerHTML =
+            "Error fetching quotes. Please try again later.";
+          console.error("Error fetching quotes:", error);
+        });
+
+      // Display quotes
+      function displayQuotes(quotes) {
+        quoteList.innerHTML = "";
+        quotes.forEach((quote) => {
+          const listItem = document.createElement("li");
+          listItem.textContent = quote.text;
+          quoteList.appendChild(listItem);
+        });
+      }
+
+      // Filter quotes based on search input
+      function handleSearch() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const filteredQuotes = quotesData.filter((quote) =>
+          quote.text.toLowerCase().includes(searchTerm)
+        );
+        displayQuotes(filteredQuotes);
+      }
+    </script>
+  </body>
+</html>
